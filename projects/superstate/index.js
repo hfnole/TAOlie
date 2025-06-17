@@ -1,15 +1,28 @@
+const ADDRESSES = require("../helper/coreAssets.json");
 const USTB = "0x43415eb6ff9db7e26a15b704e7a3edce97d31c4e";
-const USCC = "0x14d60e7fdc0d71d8611742720e4c50e7a974020c";
+
+async function tvl(api) {
+  const totalSupplies = await api.call({
+    target: USTB,
+    abi: "erc20:totalSupply",
+  });
+  api.add(USTB, totalSupplies);
+}
+
+async function tvl_plume(api) {
+  const totalSupplies = await api.call({
+    target: ADDRESSES.plume_mainnet.USTB,
+    abi: "erc20:totalSupply",
+  });
+  api.add(ADDRESSES.plume_mainnet.USTB, totalSupplies);
+}
 
 module.exports = {
-  methodology: "TVL corresponds to the total amount of USTB & USCC minted",
+  methodology: "TVL corresponds to the total amount of USTB & USCC minted onchain, does not include Superstate book-entry AUM",
   ethereum: {
-    tvl: async (api) => {
-      const totalSupplies = await api.multiCall({
-        calls: [USTB, USCC],
-        abi: "erc20:totalSupply",
-      });
-      api.addTokens([USTB, USCC], totalSupplies);
-    },
+    tvl: tvl
+  },
+  plume_mainnet: {
+    tvl: tvl_plume
   },
 };
